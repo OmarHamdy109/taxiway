@@ -90,12 +90,12 @@ const I18N = {
     land: 'Land', hold: 'Hold', go: 'Resume', gate: 'Gate', takeoff: 'Takeoff', shop: 'Upgrades', sound: 'Sound', on: 'On', off: 'Off',
     up_rw: 'Runways', up_rw_d: 'Faster braking & takeoff', up_term: 'Terminals', up_term_d: '+2 gates', up_gs: 'Ground services', up_gs_d: 'Faster turnaround, happier crowds',
     buy: 'Buy', max: 'MAX', lvl: 'Lv', close: 'Close', collision: 'Collision Alert', accident: 'Accident', over: 'ACCIDENT', flights: 'Flights handled', earned: 'Earned',
-    retry: 'Play again', rotate: 'Rotate your device to landscape', hint: 'Drag to look around · scroll / pinch to zoom · tap a monitor to zoom in, tap again to go back · tap a plane to select it, then use the AIRCRAFT screen buttons',
+    retry: 'Play again', rotate: 'Rotate your device to landscape', hint: 'Tap a plane, then use the buttons — or drag a path from it. Tap a runway or gate to send it there. Drag the map to pan, pinch to zoom.',
     clear: 'Clear', rain: 'Rain', fog: 'Fog', storm: 'Storm', mayday: 'EMERGENCY', paused: 'PAUSED', ground: 'Ground',
     lyr_labels: 'Flight labels', lyr_shadows: 'Shadows', lyr_routes: 'Taxi routes', lyr_weather: 'Weather effects', lyr_lights: 'Lights', layers: 'Layers',
     s_approach: 'Approach', s_holding: 'Holding', s_landing: 'Landing', s_landed: 'Landed', s_taxiing: 'Taxiing', s_waiting: 'Waiting', s_gate: 'At gate',
     s_boarding: 'Boarding', s_ready: 'On Time', s_lineup: 'Lined up', s_takeoff: 'Takeoff', s_departed: 'Departed', s_accident: 'Accident', s_emergency: 'Emergency', s_climb: 'Climbing',
-    kt: 'kt', ft: 'ft', back: 'Back'
+    kt: 'kt', ft: 'ft'
   },
   ar: {
     title: 'تاكسي واي ألفا', tag: 'مراقبة الحركة الجوية وإدارة المطار', cont: 'متابعة', newg: 'لعبة جديدة', airport: 'المطار', diff: 'الصعوبة',
@@ -105,12 +105,12 @@ const I18N = {
     land: 'هبوط', hold: 'انتظار', go: 'متابعة', gate: 'البوابة', takeoff: 'إقلاع', shop: 'التطوير', sound: 'الصوت', on: 'تشغيل', off: 'إيقاف',
     up_rw: 'المدارج', up_rw_d: 'كبح وإقلاع أسرع', up_term: 'الصالات', up_term_d: '+٢ بوابات', up_gs: 'الخدمات الأرضية', up_gs_d: 'تجهيز أسرع وركاب أسعد',
     buy: 'شراء', max: 'الأقصى', lvl: 'م', close: 'إغلاق', collision: 'تحذير تصادم', accident: 'حادث', over: 'حادث', flights: 'الرحلات', earned: 'الأرباح',
-    retry: 'العب مجدداً', rotate: 'أدر جهازك إلى الوضع الأفقي', hint: 'اسحب للنظر حولك · قرّب بإصبعين · المس شاشة للتكبير وأعد المس للرجوع · المس طائرة لتحديدها ثم استخدم أزرار شاشة الطائرة',
+    retry: 'العب مجدداً', rotate: 'أدر جهازك إلى الوضع الأفقي', hint: 'المس طائرة ثم استخدم الأزرار، أو اسحب مساراً منها. المس مدرجاً أو بوابة لإرسالها. اسحب الخريطة للتحريك وقرّب بإصبعين.',
     clear: 'صافٍ', rain: 'مطر', fog: 'ضباب', storm: 'عاصفة', mayday: 'طوارئ', paused: 'إيقاف مؤقت', ground: 'أرض',
     lyr_labels: 'بطاقات الرحلات', lyr_shadows: 'الظلال', lyr_routes: 'مسارات التاكسي', lyr_weather: 'مؤثرات الطقس', lyr_lights: 'الإضاءة', layers: 'الطبقات',
     s_approach: 'اقتراب', s_holding: 'انتظار', s_landing: 'هبوط', s_landed: 'هبطت', s_taxiing: 'تاكسي', s_waiting: 'متوقفة', s_gate: 'عند البوابة',
     s_boarding: 'صعود الركاب', s_ready: 'في الموعد', s_lineup: 'على المدرج', s_takeoff: 'إقلاع', s_departed: 'غادرت', s_accident: 'حادث', s_emergency: 'طوارئ', s_climb: 'صعود',
-    kt: 'عقدة', ft: 'قدم', back: 'رجوع'
+    kt: 'عقدة', ft: 'قدم'
   }
 };
 const AP_NAMES_AR = { CAI: 'القاهرة', DXB: 'دبي', LHR: 'هيثرو', JFK: 'كينيدي' };
