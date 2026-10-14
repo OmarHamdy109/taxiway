@@ -93,10 +93,10 @@ const byId = id => G.planes.find(p => p.id === id);
 const sel = () => G && G.sel ? byId(G.sel) : null;
 const isReady = p => p.st === 'gate' && p.dir === 'dep' && p.tm <= 0;
 
+const radioLog = []; // shown on the alerts/radio monitor
+const clockStr = gm => { const t = Math.floor(gm); return String(Math.floor(t / 60) % 24).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'); };
 function radio(txt, kind) {
-  const ul = $('radio'); if (!ul) return;
-  const li = document.createElement('li'); li.textContent = txt; li.className = kind || '';
-  ul.appendChild(li); while (ul.children.length > 4) ul.removeChild(ul.firstChild); setTimeout(() => li.remove(), 14000); Sfx.radio();
+  radioLog.push({ t: G ? clockStr(G.gm) : '--:--', txt, kind: kind || '' }); while (radioLog.length > 40) radioLog.shift(); Sfx.radio();
 }
 const pilot = (p, txt) => radio(`${spoken(p)}: ${txt}`, 'pl');
 const later = (f, ms) => setTimeout(() => { if (G && !G.over) f(); }, ms);
