@@ -9,7 +9,6 @@
 <link rel="icon" href="icon.svg">
 <title>Taxiway Alpha</title>
 <link rel="stylesheet" href="style.css">
-<script type="importmap">{"imports":{"three":"./vendor/three.module.min.js"}}</script>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -28,12 +27,9 @@
  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6.500" fill="none" stroke="currentColor" stroke-width="2"/><path stroke="currentColor" stroke-width="2.200" stroke-linecap="round" d="M15 15l6 6"/></symbol>
  <symbol id="i-zin" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6.500" fill="none" stroke="currentColor" stroke-width="2"/><path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M10 7v6M7 10h6M15 15l6 6"/></symbol>
  <symbol id="i-rot" viewBox="0 0 24 24"><path d="M19 12a7 7 0 1 1-2.100-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path fill="currentColor" d="M20.500 2.500v6.500H14z"/></symbol>
- <symbol id="i-bino" viewBox="0 0 24 24"><path fill="currentColor" d="M5 4h4l1 6h4l1-6h4l2 11a4 4 0 0 1-4 4 4 4 0 0 1-3.800-2.800L12.500 14h-1l-.7 2.200A4 4 0 0 1 7 19a4 4 0 0 1-4-4z"/></symbol>
  <symbol id="i-layers" viewBox="0 0 24 24"><path fill="currentColor" d="M12 3l9 5-9 5-9-5z"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M3 12.500l9 5 9-5M3 16.500l9 5 9-5"/></symbol>
 </defs></svg>
 <canvas id="cv"></canvas>
-<div id="labels"></div>
-<div id="binoc" hidden></div>
 
 <div id="hud" hidden>
   <div id="top" class="panel">
@@ -45,12 +41,40 @@
     <div class="tb sat"><svg class="ic gr"><use id="uSmile" href="#i-smile"/></svg><div class="two"><b id="hSat">92%</b><small data-i="satLabel"></small></div></div>
     <div class="tb money"><svg class="ic gr"><use href="#i-dollar"/></svg><div class="two"><b id="hMoney">0</b><small id="hRate" class="gr"></small></div></div>
     <span class="sp"></span>
-    <button id="bBinoc" class="ib" aria-label="Binoculars" title="Binoculars (B)"><svg><use href="#i-bino"/></svg></button>
     <button id="bGear" class="ib" aria-label="Settings"><svg><use href="#i-gear"/></svg></button>
   </div>
-  <button id="bBack" class="panel" hidden>&#8592; <span data-i="back"></span></button>
+
+  <div id="left" class="panel">
+    <div class="tabs"><button data-tab="arr" class="on" data-i="arrivals"></button><button data-tab="dep" data-i="departures"></button></div>
+    <div class="thead"><span data-i="flight"></span><span data-i="fromto"></span><span data-i="aircraft"></span><span data-i="status"></span><span data-i="eta"></span></div>
+    <div id="rows"></div>
+  </div>
+
+  <ul id="radio"></ul>
   <div id="pauseTag" hidden data-i="paused"></div>
+
+  <div id="mapwrap">
+    <div class="panel" id="miniBox"><canvas id="mini" width="200" height="112"></canvas><span class="north">N<i></i></span></div>
+    <div id="mapbtns">
+      <button class="ib" id="mCenter"><svg><use href="#i-target"/></svg></button>
+      <button class="ib" id="mFit"><svg><use href="#i-search"/></svg></button>
+      <button class="ib" id="mZoom"><svg><use href="#i-zin"/></svg></button>
+      <button class="ib" id="mRot"><svg><use href="#i-rot"/></svg></button>
+      <button class="ib" id="mLayers"><svg><use href="#i-layers"/></svg></button>
+    </div>
+    <div id="layersPop" class="panel" hidden></div>
+  </div>
+
   <div id="alertBox" hidden><div class="ah"><span id="aTitle"></span><span id="aTime"></span></div><div id="aMsg"></div></div>
+
+  <div id="card" class="panel" hidden>
+    <div class="ch"><span class="bdg" id="cBadge"></span><div class="cn"><b id="cFlight"></b><small id="cAirline"></small></div><span class="chip" id="cType"></span></div>
+    <div class="cb"><dl id="cInfo"></dl><canvas id="cPic" width="110" height="84"></canvas></div>
+    <div class="cc">
+      <button data-c="land" data-i="land"></button><button data-c="hold" data-i="hold"></button><button data-c="go" data-i="go"></button>
+      <button data-c="gate" data-i="gate"></button><button data-c="takeoff" data-i="takeoff"></button>
+    </div>
+  </div>
   <div id="hint" data-i="hint"></div>
 </div>
 
@@ -70,7 +94,7 @@
 <script src="js/data.js"></script>
 <script src="js/audio.js"></script>
 <script src="js/game.js"></script>
+<script src="js/render.js"></script>
 <script src="js/ui.js"></script>
-<script type="module" src="js/main.js"></script>
 </body>
 </html>
