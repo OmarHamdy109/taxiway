@@ -77,7 +77,7 @@ function spawnArrival() {
   p.h = Math.atan2(p.fix.y - p.y, p.fix.x - p.x); p.spd = 105; p.air = true; p.st = 'inbound';
   G.planes.push(p);
   radio(`${spoken(p)}: ${cfgOf().tower}, ${spoken(p)}, ${T0(AIRLINES[p.al].n)} with you, descending ${alt} feet.`, 'pl');
-  setTimeout(() => radio(`${cfgOf().tower}: ${spoken(p)}, radar contact, expect ILS approach, ${windTxt()}.`, 'tw'), 700);
+  later(() => radio(`${cfgOf().tower}: ${spoken(p)}, radar contact, expect ILS approach, ${windTxt()}.`, 'tw'), 700);
   return true;
 }
 const T0 = x => x;
@@ -110,6 +110,9 @@ function runwayBusy(r, selfId, forLanding) {
   return G.planes.some(q => q.id !== selfId && q.st !== 'accident' && ((!q.air && inRw(q, r)) ||
     (q.air && q.st === 'final' && q.rw === r && (forLanding ? q.stage >= 0 : q.stage >= 1 && dist(q, rwEnd(r, q.end)) < 450))));
 }
+const rwGap = (q, R) => Math.hypot(Math.max(R.x0 - 25 - q.x, 0, q.x - (R.x1 + 25)), Math.max(Math.abs(q.y - R.y) - 30, 0));
+// another taxiing aircraft (lower id wins) that is already released and about to enter the runway from the other side has claimed it
+const rwClaimed = (R, p) => G.planes.some(q => q !== p && q.id < p.id && q.st === 'taxi' && !q.hold && q.hs < 0 && q.path.length && inRw(q.path[0], R.i) && !inRw(q, R.i) && rwGap(q, R) < 60);
 function setPath(p, ids, dest) {
   if (p.gate >= 0 && !(dest && dest === 'G' + p.gate)) { G.gp[p.gate] = null; p.gate = -1; }
   p.path = ids.map(id => ({ x: nodePt(id).x, y: nodePt(id).y })); p.dest = dest || ids[ids.length - 1];
@@ -295,18 +298,18 @@ function updateGround(p, dt) {
   if (p.path.length && !p.hold && p.st === 'taxi') {
     for (const R of AP.rw) {
       if (inRw(p, R.i) || !inRw(p.path[0], R.i)) continue;
-      const dx = Math.max(R.x0 - 25 - p.x, 0, p.x - (R.x1 + 25)), dy = Math.max(Math.abs(p.y - R.y) - 30, 0);
-      if (Math.hypot(dx, dy) < 46 && runwayBusy(R.i, p.id)) { hs = R.i; break; }
+      if (rwGap(p, R) < 46 && (runwayBusy(R.i, p.id) || rwClaimed(R, p))) { hs = R.i; break; }
     }
   }
   if (hs >= 0) { target = 0; p.w += dt; if (p.hs !== hs) { radio(`${spoken(p)}: Holding short runway ${AP.rw[hs].names[0]}, ${spoken(p)}.`, 'pl'); } }
   p.hs = hs;
-  if (p.st !== 'rollout') for (const q of G.planes) { // yield to aircraft ahead
-    if (q === p || q.air || q.st === 'roll') continue;
-    if (dist(p, q) > radius(p) + radius(q) + 24 || opposing(p, q)) continue;
-    if (Math.abs(angDiff(Math.atan2(q.y - p.y, q.x - p.x), p.h)) < 0.8) { target = 0; break; }
+  let blocked = false;
+  for (const q of G.planes) { // yield to aircraft ahead (rolling-out aircraft brake for a blocked exit instead of ploughing into it)
+    if (q === p || q.air || q.st === 'roll' || q.st === 'accident') continue;
+    if (dist(p, q) > radius(p) + radius(q) + 24 + (p.st === 'rollout' ? p.spd * 0.7 : 0) || opposing(p, q)) continue;
+    if (Math.abs(angDiff(Math.atan2(q.y - p.y, q.x - p.x), p.h)) < 1.1) { target = 0; blocked = true; break; }
   }
-  if (p.st === 'rollout') p.spd = Math.max(tv, p.spd - 24 * (1 + 0.25 * G.up.rw) * dt);
+  if (p.st === 'rollout') p.spd = blocked ? Math.max(0, p.spd - 70 * dt) : Math.max(tv, p.spd - 24 * (1 + 0.25 * G.up.rw) * dt);
   else p.spd += clamp(target - p.spd, -70 * dt, 30 * dt);
   p.x += Math.cos(p.h) * p.spd * dt; p.y += Math.sin(p.h) * p.spd * dt;
   if (p.st === 'idle' || p.hold || !p.path.length) p.w += dt; else if (p.st === 'taxi' && hs < 0) p.w = 0;
@@ -362,8 +365,14 @@ function updateVeh(v, dt) {
 }
 
 // ---------- separation & collisions ----------
-const movingTaxi = q => q.st === 'taxi' && !q.hold && q.spd > 5;
-const opposing = (a, b) => movingTaxi(a) && movingTaxi(b) && Math.abs(angDiff(a.h, b.h)) > 2.3;
+// Taxiing / rolling-out aircraft that are not held by the player count as "moving" even at standstill (e.g. just starting off after a runway hold-short),
+// so head-on aircraft on a shared single-lane connector pass each other instead of colliding the instant one of them slows down.
+const movingTaxi = q => (q.st === 'taxi' || q.st === 'rollout') && !q.hold;
+// moving aircraft that are not travelling the same way (head-on or crossing at a junction) pass each other; only followers and stationary aircraft collide
+// (aircraft on their last path leg are about to stop, so they are treated as obstacles)
+// an aircraft holding short of a runway must let the vacating (rolling-out) aircraft through; otherwise both block each other forever
+const heldShort = (a, b) => (a.hs >= 0 && b.st === 'rollout') || (b.hs >= 0 && a.st === 'rollout');
+const opposing = (a, b) => heldShort(a, b) || movingTaxi(a) && movingTaxi(b) && (Math.abs(angDiff(a.h, b.h)) > 2.3 || a.path.length > 1 && b.path.length > 1 && Math.abs(angDiff(a.h, b.h)) > 0.9);
 function whereIs(p) {
   if (p.air) return 'flight path';
   const R = AP.rw.find(R => inRw(p, R.i)); return R ? 'Runway ' + R.names[p.x < (R.x0 + R.x1) / 2 ? 0 : 1] : 'taxiway';
@@ -401,7 +410,7 @@ function crash(a, b, why) {
     path: (r ? r.ids : []).map(id => ({ x: nodePt(id).x, y: nodePt(id).y })) }));
   radio(`${cfgOf().tower}: Mayday! Aircraft down, all stations, crash and rescue respond!`, 'warn');
   try { store.run = null; localStorage.setItem(LS, JSON.stringify(store)); } catch (e) {}
-  setTimeout(() => { if (window.showGameOver) showGameOver(); }, 9000);
+  const run = G; setTimeout(() => { if (G === run && G.over && window.showGameOver) showGameOver(); }, 9000);
 }
 function wxChange() {
   const w = cfgOf().wx, ks = Object.keys(w).filter(k => k !== G.wx); let tot = ks.reduce((s, k) => s + w[k], 0), r = Math.random() * tot, n = ks[0];

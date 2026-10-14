@@ -95,8 +95,8 @@ const UPS = [['rw', 'up_rw', 8000], ['term', 'up_term', 6000], ['gs', 'up_gs', 5
 function buildShop() {
   $('shopList').innerHTML = `<p>💰 $${Math.round(G.money).toLocaleString()}</p>`;
   UPS.forEach(([k, n, base]) => {
-    const lv = G.up[k], cost = Math.round(base * Math.pow(2.3, lv)), maxed = lv >= 3, d = document.createElement('div'); d.className = 'up';
-    d.innerHTML = `<div><b>${T(n)}</b> · ${T('lvl')} ${lv}/3<small>${T(n + '_d')}</small></div>`;
+    const lv = G.up[k], maxLv = k === 'term' ? Math.min(3, Math.ceil((GATE_X.length - cfgOf().gates) / 2)) : 3, cost = Math.round(base * Math.pow(2.3, lv)), maxed = lv >= maxLv, d = document.createElement('div'); d.className = 'up';
+    d.innerHTML = `<div><b>${T(n)}</b> · ${T('lvl')} ${lv}/${maxLv}<small>${T(n + '_d')}</small></div>`;
     const b = document.createElement('button'); b.textContent = maxed ? T('max') : `${T('buy')} $${cost.toLocaleString()}`; b.disabled = maxed || G.money < cost;
     b.onclick = () => { G.money -= cost; G.up[k]++; if (k === 'term') rebuild(); Sfx.cash(); buildShop(); saveAll(); }; d.appendChild(b); $('shopList').appendChild(d);
   });
