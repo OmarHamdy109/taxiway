@@ -1,1 +1,12 @@
-{ "name": "taxiway-alpha", "version": "1.0.0", "private": true, "scripts": { "start": "node server.js" } }
+{
+  "name": "taxiway-alpha",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "vendor": "node scripts/vendor.js"
+  },
+  "dependencies": {
+    "three": "^0.186.1"
+  }
+}
